@@ -1,4 +1,5 @@
 const worker = self;
+import Pieces from './pieces.js';
 
 class Game {
     worker;
@@ -15,6 +16,11 @@ class Game {
 
     init() {
         this.worker.onmessage = this.onMessage;
+    }
+
+    getNewPieces() {
+        const id = Math.floor( Math.random() * Pieces.length );
+        return Pieces[id]();
     }
 
     loadConfig(config) {

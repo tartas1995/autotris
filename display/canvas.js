@@ -49,14 +49,20 @@ class Canvas {
 
     convertColor(color) {
         switch (color) {
-            case 'red':
-                return "#FF0000";
+            case 'cyan':
+                return "#00FFFF";
             case 'blue':
                 return "#0000FF";
-            case 'green':
-                return "#00FF00";
+            case 'orange':
+                return "#FFA500";
             case 'yellow':
                 return "#FFFF00";
+            case 'green':
+                return "#00FF00";
+            case 'purple':
+                return "#800080";
+            case 'red':
+                return "#FF0000";
             default: 
                 return "#000000"
         }
