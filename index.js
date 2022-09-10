@@ -1,7 +1,10 @@
 // change settings here.
 const gameConfig = {
-    timeBetweenMoves: 250,
-    fpsInterval: 1000 / 20
+    timeBetweenMoves: 500,
+    fpsInterval: 1000 / 20,
+    numberOfRows: 20,
+    numberOfColumns: 10,
+    pixelsPerBlock: 20,
 }
 
 const gameWorker = new Worker('./game/index.js', {

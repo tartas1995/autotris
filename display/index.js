@@ -6,25 +6,49 @@ class Display {
     board;
     timeOfLastFrame;
     fpsInterval;
+    nbrOfRows;
+    nbrOfColumns;
+    pixelsPerBlock;
 
     constructor (gameWorker, config) {
+        this.init = this.init.bind(this);
+        this.render = this.render.bind(this);
+        this.break = this.break.bind(this);
         this.animate = this.animate.bind(this);
+        this.onMessage = this.onMessage.bind(this);
         this.gameWorker = gameWorker;
         this.fpsInterval = config.fpsInterval;
+        this.nbrOfRows = config.numberOfRows;
+        this.nbrOfColumns = config.numberOfColumns;
+        this.pixelsPerBlock = config.pixelsPerBlock;
+        this.timeOfLastFrame = 0;
         this.init();
     }
 
     init() {
         this.gameWorker.onmessage = this.onMessage;
-        this.canvas = new Canvas(document.querySelector('#game'));
+        window.break = this.break;
+        this.canvas = new Canvas(
+            document.querySelector('#game'),
+            this.nbrOfRows,
+            this.nbrOfColumns,
+            this.pixelsPerBlock
+        );
         this.animate();
     }
 
     render() {
         this.canvas.clearCanvas();
-        for (let block of board) {
+        if (!this.board) return;
+        for (let block of this.board) {
             this.canvas.drawBlock(block.color, block.x, block.y);
         }
+    }
+
+    break() {
+        this.gameWorker.postMessage({
+            name: 'break'
+        })
     }
 
     animate() {

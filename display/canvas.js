@@ -1,9 +1,15 @@
 class Canvas {
     canvas;
     ctx;
+    nbrOfColumns;
+    nbrOfRows;
+    pixelsPerBlock;
 
-    constructor(canvas) {
+    constructor(canvas, nbrOfRows, nbrOfColumns, pixelsPerBlock) {
         this.canvas = canvas;
+        this.nbrOfRows = nbrOfRows;
+        this.nbrOfColumns = nbrOfColumns;
+        this.pixelsPerBlock = pixelsPerBlock;
         this.ctx = canvas.getContext('2d');
         this.prepareCanvas();
     }
@@ -30,6 +36,12 @@ class Canvas {
     } 
 
     prepareCanvas() {
+        // setup resolution
+        this.canvas.height = this.nbrOfRows;
+        this.canvas.width = this.nbrOfColumns;
+        this.canvas.style.height = `${this.nbrOfRows * this.pixelsPerBlock}px`
+        this.canvas.style.width = `${this.brOfColumns * this.pixelsPerBlock}px`
+        // recalculating pixelsPerBlock // keeping it for future usage. maybe
         const dpi = window.devicePixelRatio;
         const originalHeight = this.canvas.height;
         const originalWidth = this.canvas.width;
@@ -44,7 +56,7 @@ class Canvas {
     }
 
     clearCanvas() {
-        this.ctx.clearRect(0,0, canvas.width, canvas.height);
+        this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
     }
 
     convertColor(color) {

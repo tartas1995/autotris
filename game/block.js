@@ -4,6 +4,8 @@ class Block {
     color;
 
     constructor(x, y, color) {
+        this.changeX = this.changeX.bind(this);
+        this.changeY = this.changeY.bind(this);
         this.x = x;
         this.y = y;
         this.color = color;

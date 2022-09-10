@@ -76,7 +76,7 @@ const ROTATIONS = {
          * 0x1  0x1  1x0  1x0
          * 000  010  011  100
          */
-        [{ x: -1, y: -1 }, { x: 0, y: -1 }, { x:  0, y: 0 }, { x:  0, y: 1 }],
+        [{ x: -1, y: -1 }, { x: 0, y: -1 }, { x:  0, y: 0 }, { x:  1, y: 0 }],
         [{ x:  1, y: -1 }, { x: 1, y:  0 }, { x:  0, y: 0 }, { x:  0, y: 1 }],
         [{ x: -1, y:  0 }, { x: 0, y:  0 }, { x:  0, y: 1 }, { x:  1, y: 1 }],
         [{ x:  0, y: -1 }, { x: 0, y:  0 }, { x: -1, y: 0 }, { x: -1, y: 1 }],
@@ -84,7 +84,6 @@ const ROTATIONS = {
 }
 
 class Piece {
-    blocks;
     type;
     x;
     y;
@@ -92,18 +91,41 @@ class Piece {
     rotation;
 
     constructor(type, color) {
+        this.rotate = this.rotate.bind(this);
+        this.getPostions = this.getPostions.bind(this);
+        this.moveDown = this.moveDown.bind(this);
         this.blocks = [];
         this.color = color;
-        this.x = 10;
-        this.y = 0;
-        this.rotation = 0;
-        for (let i = 0; i < 3; i++) {
-            this.blocks.push(new Block(0,0, color));
-        }
+        this.type = type;
+        this.x = 5;
+        this.rotation = Math.floor( Math.random() * ROTATIONS[this.type].length );
+        this.y = (
+            Math.max(
+                ...ROTATIONS[this.type][this.rotation].map(p=>p.y)
+            ) * -1 )
+            -1;
     }
 
-    rotate(direction) {
-        
+    rotate(clockwise = true) {
+        let r;
+        if (clockwise) {
+            r = this.rotation + 1;
+            r = r >= ROTATIONS[this.type].length ? 0 : r;
+        } else {
+            r = this.rotation - 1;
+            r = r < 0 ? ROTATIONS[this.type].length - 1 : r;
+        }
+        this.rotation = r;
+    }
+
+    moveDown() {
+        this.y = this.y + 1;
+    }
+
+    getPostions() {
+        return ROTATIONS[this.type][this.rotation].map(block => {
+            return { x: block.x + this.x, y: block.y + this.y, color: this.color };
+        })
     }
 }
 
