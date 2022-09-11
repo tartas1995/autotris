@@ -94,6 +94,7 @@ class Piece {
         this.rotate = this.rotate.bind(this);
         this.getPostions = this.getPostions.bind(this);
         this.moveDown = this.moveDown.bind(this);
+        this.clone = this.clone.bind(this);
         this.blocks = [];
         this.color = color;
         this.type = type;
@@ -116,16 +117,36 @@ class Piece {
             r = r < 0 ? ROTATIONS[this.type].length - 1 : r;
         }
         this.rotation = r;
+        return this;
     }
 
     moveDown() {
         this.y = this.y + 1;
+        return this;
+    }
+    
+    moveLeft() { 
+        this.x = this.x - 1;
+        return this;
+    }
+    
+    moveRight() { 
+        this.x = this.x + 1;
+        return this;
     }
 
     getPostions() {
         return ROTATIONS[this.type][this.rotation].map(block => {
             return { x: block.x + this.x, y: block.y + this.y, color: this.color };
         })
+    }
+
+    clone() {
+        const cp = new Piece(this.type, this.color)
+        cp.x = this.x;
+        cp.y = this.y;
+        cp.rotation = this.rotation;
+        return cp;
     }
 }
 

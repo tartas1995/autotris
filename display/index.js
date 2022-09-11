@@ -13,9 +13,9 @@ class Display {
     constructor (gameWorker, config) {
         this.init = this.init.bind(this);
         this.render = this.render.bind(this);
-        this.break = this.break.bind(this);
         this.animate = this.animate.bind(this);
         this.onMessage = this.onMessage.bind(this);
+        this.addEventListener = this.addEventListener.bind(this);
         this.gameWorker = gameWorker;
         this.fpsInterval = config.fpsInterval;
         this.nbrOfRows = config.numberOfRows;
@@ -27,13 +27,13 @@ class Display {
 
     init() {
         this.gameWorker.onmessage = this.onMessage;
-        window.break = this.break;
         this.canvas = new Canvas(
             document.querySelector('#game'),
             this.nbrOfRows,
             this.nbrOfColumns,
             this.pixelsPerBlock
         );
+        this.addEventListener();
         this.animate();
     }
 
@@ -45,9 +45,41 @@ class Display {
         }
     }
 
-    break() {
-        this.gameWorker.postMessage({
-            name: 'break'
+    addEventListener() {
+        document.addEventListener("keydown", (e) => {
+            switch(e.key) {
+                case "ArrowUp":
+                    this.gameWorker.postMessage({
+                        name: 'control',
+                        input: 0
+                    })
+                    break;
+                case "ArrowLeft":
+                    this.gameWorker.postMessage({
+                        name: 'control',
+                        input: 1
+                    })
+                    break;
+                case "ArrowRight":
+                    this.gameWorker.postMessage({
+                        name: 'control',
+                        input: 2
+                    })
+                    break;
+                case "ArrowDown":
+                    this.gameWorker.postMessage({
+                        name: 'control',
+                        input: 3
+                    })
+                    break;
+                case "b":
+                    this.gameWorker.postMessage({
+                        name: 'break',
+                    })
+                    break;
+                default:
+                    break;
+            }
         })
     }
 

@@ -7,6 +7,7 @@ class Game {
     board;
     currentPiece;
     intervalId;
+    score;
 
     constructor (worker) {
         this.init =  this.init.bind(this);
@@ -16,10 +17,13 @@ class Game {
         this.loadConfig =  this.loadConfig.bind(this);
         this.sendBoardToDisplay =  this.sendBoardToDisplay.bind(this);
         this.onMessage =  this.onMessage.bind(this);
+        this.controls =  this.controls.bind(this);
+        this.checkAndRemoveLines =  this.checkAndRemoveLines.bind(this);
         this.worker = worker;
         this.timeBetweenMoves = null;
         this.currentPiece = null;
         this.board = [];
+        this.score = 0;
         this.init();    
     }
 
@@ -35,7 +39,7 @@ class Game {
         if (this.currentPiece === null) {
             this.currentPiece = this.getNewPieces();
         }
-        if (this.canMoveCurrentPieceDown()) {
+        if (this.canMoveCurrentPiece('down')) {
             this.currentPiece.moveDown();
         } else {
             if (this.currentPiece.getPostions().find(pos=>pos.y < 0)) {
@@ -44,12 +48,75 @@ class Game {
             }
             this.board.push(...this.currentPiece.getPostions());
             this.currentPiece = null;
+            this.checkAndRemoveLines();
         }
-        //stuff
-        // add if rotate is possible
-        //this.currentPiece.rotate();
-        //end of stuff
         this.sendBoardToDisplay();
+    }
+
+    checkAndRemoveLines() {
+        const lines = {};
+        for (let block of this.board) {
+            if (!lines[block.y]) {
+                lines[block.y] = 0;
+            }
+            lines[block.y]++;
+        }
+        let numberOfRemovedLines = 0;
+        for (let line of Object.keys(lines)) {
+            const numberOfBlocks = lines[line];
+            if (numberOfBlocks === this.numberOfColumns) {
+                numberOfRemovedLines++;
+            }
+        }
+        if (numberOfRemovedLines > 0) {
+            this.score += numberOfRemovedLines * numberOfRemovedLines;
+            const newBoard = [];
+            for (let block of this.board) {
+                if (lines[block.y] < this.numberOfColumns) {
+                    let rowToMoveDown = 0;
+                    for (let ii = block.y; ii < this.numberOfRows; ii++) {
+                        if (lines[ii] === this.numberOfColumns) {
+                            rowToMoveDown++;
+                        }
+                    }
+                    newBoard.push({...block, y: block.y + rowToMoveDown})
+                }
+            }
+            this.board = newBoard;
+        }
+    }
+
+    controls() {
+        return [
+            () => {
+                if (this.currentPiece !== null 
+                    && this.canMoveCurrentPiece('rotate')) {
+                    this.currentPiece.rotate();
+                    this.sendBoardToDisplay();
+                }
+            },
+            () => {
+                if (this.currentPiece !== null 
+                    && this.canMoveCurrentPiece('left')) {
+                    this.currentPiece.moveLeft();
+                    this.sendBoardToDisplay();
+                }
+            },
+            () => {
+                if (this.currentPiece !== null 
+                    && this.canMoveCurrentPiece('right')) {
+                    this.currentPiece.moveRight();
+                    this.sendBoardToDisplay();
+                }
+            },
+            () => {
+                if (this.currentPiece !== null 
+                    && this.canMoveCurrentPiece('down')) {
+                    this.currentPiece.moveDown();
+                    this.sendBoardToDisplay();
+                }
+            },
+        ]
     }
 
     gameOver() {
@@ -58,12 +125,37 @@ class Game {
         this.currentPiece = null;
     }
 
-    canMoveCurrentPieceDown() {
-        const futurePositions = this.currentPiece.getPostions()
-            .map((p)=>{
-                let { y, x } = p;
-                return { x, y: y + 1 };
-            });
+    canMoveCurrentPiece(direction = 'down') {
+        let futurePositions = null;
+        switch (direction) {
+            case 'rotate':
+                futurePositions = this.currentPiece.clone()
+                    .rotate()
+                    .getPostions();
+                break;
+            case 'left':
+                futurePositions = this.currentPiece.getPostions()
+                    .map((p)=>{
+                        let { y, x } = p;
+                        return { x: x - 1, y };
+                    });
+                break;
+            case 'right':
+                futurePositions = this.currentPiece.getPostions()
+                    .map((p)=>{
+                        let { y, x } = p;
+                        return { x: x + 1, y };
+                    });
+                break;
+            case 'down':
+            default:
+                futurePositions = this.currentPiece.getPostions()
+                    .map((p)=>{
+                        let { y, x } = p;
+                        return { x, y: y + 1 };
+                    });
+                break;
+        }
         const wouldOverlapBoard = this.board.findIndex(
             (position) => {
                 let found = false;
@@ -80,7 +172,9 @@ class Game {
             return false;
         } else {
             return futurePositions.findIndex((pos) => {
-                return pos.y >= this.numberOfRows
+                return pos.y >= this.numberOfRows 
+                    || pos.x < 0 
+                    || pos.x >= this.numberOfColumns
             }) === -1
         }
     }
@@ -123,6 +217,8 @@ class Game {
                 break;
             case 'break':
                 this.break();
+            case 'control':
+                this.controls()[e.data.input]()
             default:
                 break;
         }
