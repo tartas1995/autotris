@@ -3,6 +3,7 @@ import Canvas from './canvas.js'
 class Display {
     gameWorker;
     canvas;
+    scoreElement;
     board;
     timeOfLastFrame;
     fpsInterval;
@@ -16,12 +17,14 @@ class Display {
         this.animate = this.animate.bind(this);
         this.onMessage = this.onMessage.bind(this);
         this.addEventListener = this.addEventListener.bind(this);
+        this.updateScore = this.updateScore.bind(this);
         this.gameWorker = gameWorker;
         this.fpsInterval = config.fpsInterval;
         this.nbrOfRows = config.numberOfRows;
         this.nbrOfColumns = config.numberOfColumns;
         this.pixelsPerBlock = config.pixelsPerBlock;
         this.timeOfLastFrame = 0;
+        this.scoreElement = document.querySelector('#score');
         this.init();
     }
 
@@ -83,6 +86,10 @@ class Display {
         })
     }
 
+    updateScore(score) {
+        this.scoreElement.innerHTML = score;
+    }
+
     animate() {
         window.requestAnimationFrame(this.animate);
         const now = Date.now();
@@ -96,8 +103,9 @@ class Display {
     onMessage(e) {
         if (!e.data.name) console.error('missing name in message'. e.data)
         switch (e.data.name) {
-            case 'board_update':
+            case 'displayboard_update':
                 this.board = e.data.board;
+                this.updateScore(e.data.score);
                 break;
         
             default:

@@ -204,8 +204,13 @@ class Game {
             displayBoard = [...this.board, ...this.currentPiece.getPostions()];
         }
         worker.postMessage({
+            name: 'display_update',
+            board: displayBoard,
+            score: this.score
+        });
+        worker.postMessage({
             name: 'board_update',
-            board: displayBoard
+            board: [...this.board]
         });
     }
 
