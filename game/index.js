@@ -8,6 +8,8 @@ class Game {
     currentPiece;
     intervalId;
     score;
+    //ai
+    aiPort;
 
     constructor (worker) {
         this.init =  this.init.bind(this);
@@ -16,14 +18,18 @@ class Game {
         this.getNewPieces =  this.getNewPieces.bind(this);
         this.loadConfig =  this.loadConfig.bind(this);
         this.sendBoardToDisplay =  this.sendBoardToDisplay.bind(this);
+        this.sendBoardToAI =  this.sendBoardToAI.bind(this);
+        this.sendPieceToAI =  this.sendPieceToAI.bind(this);
         this.onMessage =  this.onMessage.bind(this);
         this.controls =  this.controls.bind(this);
         this.checkAndRemoveLines =  this.checkAndRemoveLines.bind(this);
+        this.onAiMessage = this.onAiMessage.bind(this);
         this.worker = worker;
         this.timeBetweenMoves = null;
         this.currentPiece = null;
         this.board = [];
         this.score = 0;
+        this.counter = 0
         this.init();    
     }
 
@@ -38,6 +44,7 @@ class Game {
     clock() {
         if (this.currentPiece === null) {
             this.currentPiece = this.getNewPieces();
+            this.sendPieceToAI(true);
         }
         if (this.canMoveCurrentPiece('down')) {
             this.currentPiece.moveDown();
@@ -49,8 +56,13 @@ class Game {
             this.board.push(...this.currentPiece.getPostions());
             this.currentPiece = null;
             this.checkAndRemoveLines();
+            this.sendBoardToAI();
         }
         this.sendBoardToDisplay();
+        this.counter++
+        /*if (this.counter > 30) {
+            clearInterval(this.intervalId)
+        }*/
     }
 
     checkAndRemoveLines() {
@@ -93,6 +105,7 @@ class Game {
                     && this.canMoveCurrentPiece('rotate')) {
                     this.currentPiece.rotate();
                     this.sendBoardToDisplay();
+                    this.sendPieceToAI();
                 }
             },
             () => {
@@ -100,6 +113,7 @@ class Game {
                     && this.canMoveCurrentPiece('left')) {
                     this.currentPiece.moveLeft();
                     this.sendBoardToDisplay();
+                    this.sendPieceToAI();
                 }
             },
             () => {
@@ -107,6 +121,7 @@ class Game {
                     && this.canMoveCurrentPiece('right')) {
                     this.currentPiece.moveRight();
                     this.sendBoardToDisplay();
+                    this.sendPieceToAI();
                 }
             },
             () => {
@@ -114,6 +129,7 @@ class Game {
                     && this.canMoveCurrentPiece('down')) {
                     this.currentPiece.moveDown();
                     this.sendBoardToDisplay();
+                    this.sendPieceToAI();
                 }
             },
         ]
@@ -194,6 +210,7 @@ class Game {
             this.timeBetweenMoves =  config.timeBetweenMoves;
         }
         this.intervalId = setInterval(this.clock, this.timeBetweenMoves)
+        this.sendBoardToAI();
     }
 
     sendBoardToDisplay() {
@@ -203,23 +220,48 @@ class Game {
         } else {
             displayBoard = [...this.board, ...this.currentPiece.getPostions()];
         }
-        worker.postMessage({
+        this.worker.postMessage({
             name: 'display_update',
             board: displayBoard,
             score: this.score
         });
-        worker.postMessage({
+    }
+
+    sendBoardToAI() {
+        this.aiPort.postMessage({
             name: 'board_update',
-            board: [...this.board]
+            board: [...this.board],
         });
+    }
+
+    sendPieceToAI(newPiece = false) {
+        this.aiPort.postMessage({
+            name: 'currentPiece',
+            piece: this.currentPiece.getData(),
+            newPiece: newPiece
+        })
     }
 
     onMessage(e) {
         if (!e.data.name) console.error('missing name in message'. e.data)
         switch (e.data.name) {
             case 'config':
+                this.aiPort = e.ports[0];
+                this.aiPort.onmessage = this.onAiMessage;
                 this.loadConfig(e.data.config)
                 break;
+            case 'break':
+                this.break();
+            case 'control':
+                this.controls()[e.data.input]()
+            default:
+                break;
+        }
+    }
+
+    onAiMessage(e) {
+        if (!e.data.name) console.error('missing name in message'. e.data)
+        switch (e.data.name) {
             case 'break':
                 this.break();
             case 'control':

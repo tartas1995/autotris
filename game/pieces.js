@@ -90,11 +90,13 @@ class Piece {
     color;
     rotation;
 
-    constructor(type, color) {
+    constructor(type = 'I', color = 'cyan') {
         this.rotate = this.rotate.bind(this);
         this.getPostions = this.getPostions.bind(this);
         this.moveDown = this.moveDown.bind(this);
         this.clone = this.clone.bind(this);
+        this.getData = this.getData.bind(this);
+        this.setData = this.setData.bind(this);
         this.blocks = [];
         this.color = color;
         this.type = type;
@@ -141,6 +143,24 @@ class Piece {
         })
     }
 
+    getData() {
+        return {
+            type: this.type,
+            x: this.x,
+            y: this.y,
+            color: this.color,
+            rotation: this.rotation,
+        };
+    }
+
+    setData(data) {
+        this.type = data.type;
+        this.x = data.x;
+        this.y = data.y;
+        this.color = data.color;
+        this.rotation = data.rotation;
+    }
+
     clone() {
         const cp = new Piece(this.type, this.color)
         cp.x = this.x;
@@ -161,3 +181,7 @@ const pieceMap = [
 ]
 
 export default pieceMap;
+export {
+    ROTATIONS,
+    Piece
+};

@@ -103,7 +103,7 @@ class Display {
     onMessage(e) {
         if (!e.data.name) console.error('missing name in message'. e.data)
         switch (e.data.name) {
-            case 'displayboard_update':
+            case 'display_update':
                 this.board = e.data.board;
                 this.updateScore(e.data.score);
                 break;
