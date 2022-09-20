@@ -49,6 +49,7 @@ class Display {
     }
 
     addEventListener() {
+        /*
         document.addEventListener("keydown", (e) => {
             switch(e.key) {
                 case "ArrowUp":
@@ -84,6 +85,7 @@ class Display {
                     break;
             }
         })
+        */
     }
 
     updateScore(score) {
