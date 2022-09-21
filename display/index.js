@@ -18,6 +18,7 @@ class Display {
         this.onMessage = this.onMessage.bind(this);
         this.addEventListener = this.addEventListener.bind(this);
         this.updateScore = this.updateScore.bind(this);
+        this.transformColor = this.transformColor.bind(this);
         this.gameWorker = gameWorker;
         this.fpsInterval = config.fpsInterval;
         this.nbrOfRows = config.numberOfRows;
@@ -25,7 +26,28 @@ class Display {
         this.pixelsPerBlock = config.pixelsPerBlock;
         this.timeOfLastFrame = 0;
         this.scoreElement = document.querySelector('#score');
+        this.scoreElement.style.color = this.transformColor(config.color);
+        this.scoreElement.style.fontSize = config.fontSize;
+        this.scoreElement.style.fontFamily = config.fontFamily;
+        if (!config.displayScore) {
+            this.scoreElement.style.display = 'none';
+        }
         this.init();
+    }
+
+    transformColor(str) {
+        //check if RBG value
+        if (str.length === 6) {
+            const r = parseInt(str.substring(0,2), 16);
+            const g = parseInt(str.substring(2,4), 16);
+            const b = parseInt(str.substring(4,6), 16);
+            if (r > 0 && r < 256 
+                && g > 0 && g < 256
+                && b > 0 && b < 256 ) {
+                    return `#${str}`;
+            }
+        }
+        return str;
     }
 
     init() {

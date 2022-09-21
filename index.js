@@ -1,3 +1,24 @@
+const gameConfigTypes = {
+    //game config
+    timeBetweenMoves: 'number',
+    //display
+    fpsInterval: 'number',
+    displayScore: 'boolean',
+    color: 'string',
+    fontSize: 'string',
+    fontFamily: 'string',
+    // ai config
+    aiInterval: 'number',
+    aggregateHeight: 'number',
+    lines: 'number',
+    holes: 'number',
+    bumpiness: 'number',
+    // shared
+    numberOfRows: 'number',
+    numberOfColumns: 'number',
+    pixelsPerBlock: 'number',
+}
+
 // change settings here.
 const gameConfig = {
     //game config
@@ -5,6 +26,9 @@ const gameConfig = {
     //display
     fpsInterval: 1000 / 20,
     displayScore: true,
+    color: 'white',
+    fontSize: '1em',
+    fontFamily: 'auto',
     // ai config
     aiInterval: 1000 / 30,
     aggregateHeight: -0.510066,
@@ -28,12 +52,24 @@ function findGetParameter(parameterName) {
     return result;
 }
 
-
-if (!gameConfig.displayScore) {
-    document.querySelector('#score').style.display = 'none';
-} else {
-    const color = findGetParameter('color');
-    document.querySelector('#score').style.color = !!color ? `#${color}` : 'white';
+for (let configKey in gameConfig) {
+    const loadValue = findGetParameter(configKey);
+    if (loadValue !== null) {
+        let transformed = null;
+        switch (gameConfigTypes[configKey]) {
+            case 'number':
+                transformed = parseFloat(loadValue);
+                break;
+            case 'boolean':
+                transformed = (loadValue === 'true' || loadValue === '1')
+                break;
+            case 'string':
+            default:
+                transformed = loadValue;
+                break;
+        }
+        gameConfig[configKey] = transformed;
+    }
 }
 
 const messageChannel = new MessageChannel();
