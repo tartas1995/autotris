@@ -189,16 +189,17 @@ class AI {
             scores.push(this.calculateScore(moveboard))
         }
         let heighest = null;
-        let move = null;
-        let index = null;
+        let indexes = [];
         for (let ii = 0; ii < scores.length; ii++) {
             if (heighest === null || scores[ii] > heighest) {
-                index = ii;
+                indexes = [];
+                indexes.push(ii);
                 heighest = scores[ii];
-                move = moves[ii];
+            } else if (heighest === scores[ii]) {
+                indexes.push(ii);
             }
         }
-        this.bestMove = move;
+        this.bestMove = moves[indexes[Math.floor( Math.random() * indexes.length )]];
     }
 
     calculateScore(board) {
