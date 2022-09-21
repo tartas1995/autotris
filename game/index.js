@@ -137,6 +137,7 @@ class Game {
 
     gameOver() {
         console.log("gameOver");
+        this.score = 0;
         this.board = [];
         this.currentPiece = null;
     }
