@@ -10,7 +10,7 @@ parameters|type|description
 game settings||
 timeBetweenMoves|number|milliseconds between the game's actions
 display settings||
-fpsInterval|number|refresh rate of the display
+fpsInterval|number|refresh rate of the display (time between frames)
 displayScore|boolean|display a score
 color|string|the color of the score
 fontSize|string|the font size of the score
