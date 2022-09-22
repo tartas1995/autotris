@@ -7,6 +7,7 @@ const gameConfigTypes = {
     color: 'string',
     fontSize: 'string',
     fontFamily: 'string',
+    pixelsPerBlock: 'number',
     // ai config
     aiInterval: 'number',
     aggregateHeight: 'number',
@@ -16,7 +17,6 @@ const gameConfigTypes = {
     // shared
     numberOfRows: 'number',
     numberOfColumns: 'number',
-    pixelsPerBlock: 'number',
 }
 
 // change settings here.
