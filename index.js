@@ -41,19 +41,10 @@ const gameConfig = {
     pixelsPerBlock: 20,
 }
 
-function findGetParameter(parameterName) {
-    let result = null,
-        tmp = [];
-    let items = location.search.substring(1).split("&");
-    for (let index = 0; index < items.length; index++) {
-        tmp = items[index].split("=");
-        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-    }
-    return result;
-}
+const params = new URLSearchParams(document.location.search);
 
 for (let configKey in gameConfig) {
-    const loadValue = findGetParameter(configKey);
+    const loadValue = params.get(configKey);
     if (loadValue !== null) {
         let transformed = null;
         switch (gameConfigTypes[configKey]) {
